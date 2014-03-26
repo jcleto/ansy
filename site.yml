@@ -1,0 +1,43 @@
+---
+
+-   name: Common configuration
+    hosts: all
+    user: root
+
+    roles:
+        - common
+
+#-   name: Configure jBPM servers
+#    hosts: jbpmservers
+#    user: root
+
+#   roles:
+#        - jbpm
+
+#-   name: Configure MediaManager servers
+#    hosts: mmservers
+#    user: root
+
+#    roles:
+#        - mm
+
+#-   name: Configure ActiveMQ servers
+#   hosts: activemqservers
+#    user: root
+
+#   roles:
+#        - activemq
+
+-   name: Configure Database servers
+    hosts: dbservers
+    user: root
+
+    roles:
+        - db
+
+-   name: Configure MediaManager build servers
+    hosts: mmbuildservers
+    user: root
+
+    roles:
+        - db
