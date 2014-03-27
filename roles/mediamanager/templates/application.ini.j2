@@ -1,0 +1,107 @@
+[production]
+phpSettings.display_startup_errors = 0
+phpSettings.display_errors = 0
+phpSettings.date.timezone = "UTC"
+includePaths.library = APPLICATION_PATH "/../library"
+includePaths.files = APPLICATION_PATH "/custom/files"
+pluginPaths.Irdeto\Common\Application\Resource\ = "Irdeto/Common/Application/Resource"
+
+autoloaderNamespaces[] = "Irdeto\\Common\\"
+autoloaderNamespaces[] = "Irdeto\\User\\"
+autoloaderNamespaces[] = "Irdeto\\ViewBuilder\\"
+autoloaderNamespaces[] = "Irdeto\\Widget\\"
+autoloaderNamespaces[] = "Irdeto_"
+autoloaderNamespaces[] = "Pub"
+
+bootstrap.path = APPLICATION_PATH "/Bootstrap.php"
+bootstrap.class = "Bootstrap"
+
+resources.settings.storage = "doctrine2"
+
+resources.frontController.plugins.dispatcher = "Pub_Controller_Plugin_Application"
+resources.frontController.controllerDirectory = APPLICATION_PATH "/controllers"
+resources.frontController.params.siteName = "MediaManager"
+resources.frontController.actionHelperPaths.Irdeto\Common\Controller\Action\Helper\ = Irdeto/Common/Controller/Action/Helper
+resources.frontController.actionHelperPaths.Irdeto\User\Controller\Action\Helper\ = "Irdeto/User/Controller/Action/Helper"
+
+resources.doctrine2.cache = apc
+resources.doctrine2.proxy.directory = APPLICATION_PATH "/data/doctrine/Proxies"
+resources.doctrine2.proxy.namespace = Proxies
+resources.doctrine2.connection.driver = "pdo_mysql"
+resources.doctrine2.connection.host = {{ db_host }}
+resources.doctrine2.connection.dbname = {{ db_name }}
+resources.doctrine2.connection.user = {{ db_user }}
+resources.doctrine2.connection.password = {{ db_password }}
+resources.doctrine2.metadata.mappingPaths.yaml.Irdeto\Widget\ = APPLICATION_PATH "/../library/Irdeto/Widget/Resources/configs/doctrine/mapping"
+resources.doctrine2.metadata.mappingPaths.yaml.Irdeto\User\ = APPLICATION_PATH "/../library/Irdeto/User/Resources/configs/doctrine/mapping"
+resources.doctrine2.metadata.mappingPaths.annotation.Irdeto\Common\Model = APPLICATION_PATH "/../library/Irdeto/Common/Model/"
+resources.doctrine2.metadata.entitiesPaths.Irdeto\Widget\ = APPLICATION_PATH "/../library"
+resources.doctrine2.metadata.entitiesPaths.Irdeto\User\ = APPLICATION_PATH "/../library"
+resources.doctrine2.profiler = ""
+
+resources.cacheManager.default.backend.options.cache_dir = APPLICATION_PATH "/data/cache"
+
+resources.locale.supportedLocales = "en_US"
+resources.locale.defaultLocale = "en_US"
+
+resources.translate.adapter = Irdeto\Common\Translate\Adapter\Gettext
+resources.translate.cache = default
+resources.translate.tag = Zend_Translate_Merged_Translations
+resources.translate.content.0 = APPLICATION_PATH "/../languages"
+resources.translate.content.1 = APPLICATION_PATH "/custom/languages"
+resources.translate.options.scan = filename
+resources.translate.options.logUntranslated = false
+resources.translate.clientCache.enabled = true
+resources.translate.clientCache.maxAge = 86400
+
+resources.layout.layoutPath = APPLICATION_PATH "/layouts/scripts"
+resources.view[] = ""
+
+resources.commands.mediamanager = "php " APPLICATION_PATH "/../scripts/mediamanager/mediamanager"
+resources.commands.doctrine = "php " APPLICATION_PATH "/../scripts/doctrine2/doctrine"
+resources.commands.php = php
+
+resources.entityFramework.locale.default = "en_US"
+resources.entityFramework.locale.supported[] = "en_US"
+resources.entityFramework.queue.amq.connection.host = {{ amq_host }};
+resources.entityFramework.queue.amq.connection.port = {{ amq_port }};
+resources.entityFramework.queue.amq.connection.queue = {{ amq_queue }};
+resources.entityFramework.queue.amq.connection.topic = "";
+resources.entityFramework.queue.amq.connection.username = "username";
+resources.entityFramework.queue.amq.connection.password = "password";
+
+resources.log.filePath = APPLICATION_PATH "/custom/log/mediamanager.log"
+; Possible values are: DEBUG, INFO, NOTICE, WARNING, ERROR, CRITICAL, ALERT, EMERGENCY
+resources.log.level = ERROR
+
+performance.minimized_scripts = "1"
+
+
+[staging : production]
+
+[failover : production]
+maintenanceMode = true
+
+[testing : production]
+phpSettings.display_startup_errors = 1
+phpSettings.display_errors = 1
+
+[development : production]
+phpSettings.display_startup_errors = 1
+phpSettings.display_errors = 1
+
+resources.doctrine2.profiler = "\ZendX\Doctrine2\FirebugProfiler"
+
+resources.frontController.throwExceptions = true
+
+performance.minimized_scripts = "0"
+
+resources.log.level = DEBUG
+
+[patch : development]
+
+[unittest : development]
+resources.settings.storage = "revisionIgnoring"
+resources.doctrine2.connection.dbname = "mm_unit_test"
+resources.doctrine2.connection.user = "mm"
+resources.doctrine2.connection.password = "mm"

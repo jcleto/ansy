@@ -1,0 +1,22 @@
+---
+- name: Copy Apache configuration for MediaManager
+  copy: src=irdeto_publish.conf dest=/etc/httpd/conf.d/
+
+- name: Copy PHP configuration for MediaManager
+  copy: src=irdeto_publish.ini dest=/etc/php.d/
+
+- name: Create MediaManager folder structure
+  file: path={{ item }} owner=root group=root mode=0666 state=directory
+  with_items:
+      - /var/www/src/zip
+      - /var/www/src/shared/custom/files
+      - /var/www/src/shared/custom/log
+      - /var/www/src/shared/custom/languages
+
+- name: Copies MediaManager ini files
+  template: src={{ item.src }} dest=/var/www/src/shared/{{ item.dest }} owner=root group=root mode=0666
+  with_items:
+      - {src: 'application.ini.j2', dest: 'application.ini'}
+      - {src: 'applicationApi.ini.j2', dest: 'applicationApi.ini'}
+      - {src: 'applicationUpdate.ini.j2', dest: 'applicationUpdate.ini'}
+

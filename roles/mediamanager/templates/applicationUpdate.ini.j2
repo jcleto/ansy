@@ -1,0 +1,40 @@
+[patch]
+phpSettings.display_startup_errors = 1
+phpSettings.display_errors = 1
+phpSettings.date.timezone = "UTC"
+
+includePaths.library = APPLICATION_PATH "/../library"
+pluginPaths.Irdeto\Common\Application\Resource\ = "Irdeto/Common/Application/Resource"
+
+autoloaderNamespaces[] = "Pub"
+
+bootstrap.path = APPLICATION_PATH "/UpdateBootstrap.php"
+bootstrap.class = "UpdateBootstrap"
+
+resources.settings.storage = "doctrine2"
+
+resources.frontController.plugins.dispatcher = "Pub_Controller_Plugin_Application"
+resources.frontController.controllerDirectory = APPLICATION_PATH "/controllers"
+resources.frontController.params.siteName = "MediaManager"
+resources.frontController.actionHelperPaths.Irdeto\Common\Controller\Action\Helper\ = Irdeto/Common/Controller/Action/Helper
+
+resources.db.adapter = "pdo_mysql"
+resources.db.params.host = {{ db_host }}
+resources.db.params.username = {{ db_user }}
+resources.db.params.password = {{ db_password }}
+resources.db.params.dbname = {{ db_name }}
+resources.db.isDefaultTableAdapter = true
+resources.db.params.charset = "utf8"
+
+resources.layout.layoutPath = APPLICATION_PATH "/layouts/scripts"
+resources.view[] = ""
+
+resources.commands.mediamanager = "php " APPLICATION_PATH "/../scripts/mediamanager/mediamanager"
+resources.commands.doctrine = "php " APPLICATION_PATH "/../scripts/doctrine2/doctrine"
+resources.commands.php = php
+
+resources.frontController.throwExceptions = true
+
+resources.log.filePath = APPLICATION_PATH "/custom/log/mediamanager.log"
+; Possible values are: DEBUG, INFO, NOTICE, WARNING, ERROR, CRITICAL, ALERT, EMERGENCY
+resources.log.level = ERROR

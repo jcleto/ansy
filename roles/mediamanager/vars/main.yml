@@ -1,0 +1,7 @@
+---
+db_host: "localhost"
+db_name: "mediamanager"
+db_user: "root"
+db_password: "root"
+amq_host: "localhost"
+amq_port: "61613"
