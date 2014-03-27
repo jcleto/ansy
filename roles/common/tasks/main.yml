@@ -42,3 +42,6 @@
       - automake
       - openssl-devel
 
+- name: Install Git
+  yum: name=git state=installed
+

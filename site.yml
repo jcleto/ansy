@@ -44,3 +44,5 @@
         - apache
         - php
         - php-pecl
+        - php-pear
+        - composer
