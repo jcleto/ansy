@@ -3,6 +3,7 @@
 [jbpmservers]
 
 [activemqservers]
+172.16.114.106
 
 [dbservers]
 

@@ -7,12 +7,13 @@
     roles:
         - common
 
-#-   name: Configure jBPM servers
-#    hosts: jbpmservers
-#    user: root
+-   name: Configure jBPM servers
+    hosts: jbpmservers
+    user: root
 
-#   roles:
-#        - jbpm
+    roles:
+       - java
+       #        - jbpm
 
 #-   name: Configure MediaManager servers
 #    hosts: mmservers
@@ -21,11 +22,12 @@
 #    roles:
 #        - mm
 
-#-   name: Configure ActiveMQ servers
-#   hosts: activemqservers
-#    user: root
+-   name: Configure ActiveMQ servers
+    hosts: activemqservers
+    user: root
 
-#   roles:
+    roles:
+        - java
 #        - activemq
 
 -   name: Configure Database servers
