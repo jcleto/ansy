@@ -43,3 +43,4 @@
         - db
         - apache
         - php
+        - php-pecl

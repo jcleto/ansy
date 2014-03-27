@@ -1,0 +1,14 @@
+---
+- name: Install PECL libaries.
+  command: pecl install {{ item }}
+  register: pecl_result
+  changed_when: "'already installed' not in pecl_result.stdout"
+  failed_when: "pecl_result.stderr"
+  with_items: php_pecl_extensions
+
+- name: Install PECL Stomp
+# command: 'printf "yes" | pecl install stomp'
+  shell: printf "yes" | pecl install stomp
+  register: pecl_result
+  changed_when: "'already installed' not in pecl_result.stdout"
+  failed_when: "pecl_result.stderr"

@@ -32,3 +32,13 @@
 
 - name: set selinux boolean
   command: /usr/sbin/setsebool -P httpd_can_network_connect=1
+
+- name: install compilers
+  yum: name={{ item }} state=installed
+  with_items:
+      - gcc
+      - gcc-c++
+      - autoconf
+      - automake
+      - openssl-devel
+
