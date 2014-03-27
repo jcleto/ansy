@@ -1,0 +1,6 @@
+---
+apache_enablerepo: "remi"
+apache_listen_port: 80
+apache_vhosts:
+  # Additional properties: 'serveradmin, extra_parameters'.
+  - {servername: "local.dev", documentroot: "/var/www/html"}
