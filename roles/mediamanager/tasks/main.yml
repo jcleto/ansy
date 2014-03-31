@@ -20,3 +20,11 @@
       - {src: 'applicationApi.ini.j2', dest: 'applicationApi.ini'}
       - {src: 'applicationUpdate.ini.j2', dest: 'applicationUpdate.ini'}
 
+- name: Copy MM test installer
+  copy: src=install-mm dest=~/ owner=root group=root mode=0744
+
+- name: Copy DB script
+  copy: src=mysql.sql dest=/tmp
+
+- name: Create MediaManager DB
+  mysql_db: name=mediamanager collation=utf8_general_ci target=/tmp/mysql.sql login_user=root login_password=root state=import
