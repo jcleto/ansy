@@ -26,5 +26,11 @@
 - name: Copy DB script
   copy: src=mysql.sql dest=/tmp
 
+- name: Delete MediaManager DB
+  mysql_db: name=mediamanager login_user=root login_password=root state=absent
+
 - name: Create MediaManager DB
+  mysql_db: name=mediamanager collation=utf8_general_ci login_user=root login_password=root state=present
+
+- name: Create MediaManager tables
   mysql_db: name=mediamanager collation=utf8_general_ci target=/tmp/mysql.sql login_user=root login_password=root state=import
