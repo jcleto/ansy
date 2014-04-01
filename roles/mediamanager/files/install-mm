@@ -1,0 +1,262 @@
+#!/bin/bash
+# This is a script to install a MediaManager build without using puppet
+# Input: URL to zip file containting the build to install.
+# Output: exit code of 0 on success, 1 on failure.
+
+INSTALL_LINK=/var/www/irdeto_publish
+INSTALL_PATH=/var/www/src
+
+function usage()
+{
+    echo "This is a script for installing MediaManager"
+    echo ""
+    echo "$0 [-h -t -d -b -c -u -s -f -i -l] BUILD_PATH"
+    echo -e "\t-h (Displays this help text)"
+    echo -e "\t-t (Displays a list of all dirs and links)"
+    echo -e "\t-d (Clean all entity data.)"
+    echo -e "\t-b (Bake the Jumpstart recipe.)"
+    echo -e "\t-c (Clean the Jumpstart recipe.)"
+    echo -e "\t-u (Update the Jumpstart recipe.)"
+    echo -e "\t-s (If a build of the same version is already installed, silently link to it.)"
+    echo -e "\t-f (If a build of the same version is already installed, force a reinstall.)"
+    echo -e "\t-i INSTALL_PATH (Specify an alternate install path)"
+    echo -e "\t-l INSTALL_LINK (Specify an alternate symbolic link path)"
+    echo ""
+}
+
+function die()
+{
+  # Print an error message and exit with given status
+  # call as: die status "message" ["message" ...]
+  exitstat=$1; shift
+  for i in "$@"; do
+     echo -e "$i"
+  done
+  exit $exitstat
+}
+
+function testinstall()
+{
+  set -x
+  ls -l /var/www/src
+  ls -l /var/www/src/zip
+  ls -ld /var/www/irdeto_publish
+  ls -ld /var/www/irdeto_publish/application/custom
+  ls -l /var/www/irdeto_publish/application/configs
+}
+
+function recipeUpdate()
+{
+    php $INSTALL_LINK/scripts/mediamanager/mediamanager entity:recipe:update Jumpstart || die 1 "Unable to update the recipe."
+}
+
+function recipeBake()
+{
+    php $INSTALL_LINK/scripts/mediamanager/mediamanager entity:recipe:bake Jumpstart || die 1 "Unable to bake the recipe."
+}
+
+function recipeClean()
+{
+    php $INSTALL_LINK/scripts/mediamanager/mediamanager entity:recipe:clean Jumpstart || die 1 "Unable to clean the recipe."
+}
+
+function entityClean()
+{
+    php $INSTALL_LINK/scripts/mediamanager/mediamanager entity:clean || die 1 "Unable to clean all the entity data."
+}
+
+function installMediaManager()
+{
+    # Display to user which build is being installed
+    echo "Installing MediaManager package '$BUILD_PATH'..."
+
+    # Check whether the last parameter starts with "http".
+    # (Need the double brackets so it will do the =~ regex comparison.
+    if [[ $BUILD_PATH =~ ^http ]]
+    then
+      # Download the build and put it in the zip dir.
+      wget -N -P $INSTALL_PATH/zip $BUILD_PATH || die 1 "Unable to successfully download the build: $BUILD_PATH"
+    # Check whether BUILD_PATH is a valid readable file.
+    elif [ -r $BUILD_PATH ]
+    then
+      # Copy the zip file to the zip dir if it doesn't already exist.
+      if [ ! -f $INSTALL_PATH/zip/`basename $BUILD_PATH` ]
+      then
+        cp $BUILD_PATH $INSTALL_PATH/zip
+      fi
+    else
+      die 1 "Unable to copy $BUILD_PATH to $INSTALL_PATH/zip successfully."
+    fi
+
+    # Check whether the dir where the unzipped build will reside already exists.  Notice the "P" at the beginning of the dir name.  This is to follow a convention started by puppet.
+    BUILD_DIR_NAME=`basename $BUILD_PATH |  sed "s/\.zip//"`
+
+    # There's a permanent link in Jenkins to the latest successful build, but it is  contained inside a file named "archive.zip", so we'll just unzip that file in the proper directory and continue on.
+    if [ $BUILD_DIR_NAME == "archive" ]
+    then
+      # Unzip this file because the build is inside of it
+      BUILD_FILE=`basename $BUILD_PATH`
+      output=`unzip -o $INSTALL_PATH/zip/$BUILD_FILE -d $INSTALL_PATH/zip/.` || die 1 "Unable to unzip to dir: $INSTALL_PATH/P$BUILD_DIR_NAME"
+      # Change the BUILD_DIR_NAME and BUILD_PATH to be based on the zip file inside of archive.zip
+      BUILD_DIR_PATH=`echo $output | sed 's/ /\n/g' | gawk '/[0-9]+\.[0-9]+\.[0-9]+.[0-9]+\.zip/ { print $1 }' | sed 's/\.zip//g'`
+      BUILD_DIR_NAME=`basename $BUILD_DIR_PATH`
+      BUILD_PATH="$BUILD_DIR_NAME.zip"
+    fi
+
+    # If the dir already exists we need to check whether -s or -f were specified and act accordingly.
+    if [[ -d $INSTALL_PATH/P$BUILD_DIR_NAME ]]
+    then
+      # If -s or -f weren't specified the build will be installed in a new timestamped dir
+      if [[ ! $INSTALL_SILENT && ! $INSTALL_FORCE ]]
+      then
+        BUILD_DIR_NAME=${BUILD_DIR_NAME}_`date +%s`
+        mkdir $INSTALL_PATH/P$BUILD_DIR_NAME || die 1 "Unable to create dir: $INSTALL_PATH/P$BUILD_DIR_NAME"
+      fi
+      # If -s wasn't specified then we'll unzip to the install dir
+      if [[ ! $INSTALL_SILENT ]]
+      then
+        # Remove all files and dirs from the build dir.
+        rm -rf $INSTALL_PATH/P$BUILD_DIR_NAME/* || die 1 "Unable to remove all files and directories from the build directory."
+        # Unzip it
+        unzip -oq $INSTALL_PATH/zip/`basename $BUILD_PATH` -d $INSTALL_PATH/P$BUILD_DIR_NAME || die 1 "Unable to unzip to dir: $INSTALL_PATH/P$BUILD_DIR_NAME"
+        # The build is now (2012-07-11) zipped into a "build" dir, move it up one
+        mv $INSTALL_PATH/P$BUILD_DIR_NAME/build/* $INSTALL_PATH/P$BUILD_DIR_NAME/.  || die 1 "Unable to mv the installed files out of the build dir."
+        rmdir $INSTALL_PATH/P$BUILD_DIR_NAME/build || die 1 "Unable to remove the build dir."
+      fi
+    else
+      # The dir doesn't already exist, so we need to create it.
+      mkdir $INSTALL_PATH/P$BUILD_DIR_NAME || die 1 "Unable to create dir: $INSTALL_PATH/P$BUILD_DIR_NAME"
+      # Unzip it
+      unzip -oq $INSTALL_PATH/zip/`basename $BUILD_PATH` -d $INSTALL_PATH/P$BUILD_DIR_NAME || die 1 "Unable to unzip to dir: $INSTALL_PATH/P$BUILD_DIR_NAME"
+      # The build is now (2012-07-11) zipped into a "build" dir, move it up one
+      mv $INSTALL_PATH/P$BUILD_DIR_NAME/build/* $INSTALL_PATH/P$BUILD_DIR_NAME/.  || die 1 "Unable to mv the installed files out of the build dir."
+      rmdir $INSTALL_PATH/P$BUILD_DIR_NAME/build || die 1 "Unable to remove the build dir."
+    fi
+
+    # Remove the existing "irdeto_publish" link and recreate it pointing to the new dir.  If we don't remove it first, the link will be created under the $INSTALL_LINK directory.
+    rm -f $INSTALL_LINK  || die 1 "Unable to remove symbolic link: $INSTALL_LINK"
+    ln -sf $INSTALL_PATH/P$BUILD_DIR_NAME $INSTALL_LINK || die 1 "Unable to create symbolic link: $INSTALL_LINK"
+
+    # Create the link to the shared custom directory.
+    rm -rf $INSTALL_LINK/application/custom || die 1 "Unable to remove directory: $INSTALL_LINK/application/custom"
+    ln -sf $INSTALL_PATH/shared/custom $INSTALL_LINK/application/custom || die 1 "Unable to create symbolic link: $INSTALL_LINK/application/custom"
+
+    # Create the links to the ini files.
+    ln -sf $INSTALL_PATH/shared/application.ini $INSTALL_LINK/application/configs/application.ini || die 1 "Unable to create symbolic link: $INSTALL_LINK/application/configs/application.ini"
+    ln -sf $INSTALL_PATH/shared/applicationUpdate.ini $INSTALL_LINK/application/configs/applicationUpdate.ini || die 1 "Unable to create symbolic link: $INSTALL_LINK/application/configs/applicationUpdate.ini"
+    ln -sf $INSTALL_PATH/shared/applicationApi.ini $INSTALL_LINK/application/configs/applicationApi.ini || die 1 "Unable to create symbolic link: $INSTALL_LINK/application/configs/applicationApi.ini"
+
+    # Create the GeneratedEntity dir
+    mkdir -p $INSTALL_LINK/application/../library/Irdeto/Entity/GeneratedEntity
+    chmod 777 $INSTALL_LINK/application/../library/Irdeto/Entity/GeneratedEntity
+
+    # Open up permissions to mediamanager.php
+    chmod 777 $INSTALL_LINK/scripts/mediamanager/mediamanager.php
+
+    # Open up permissions to allow modes to work.
+    chmod -R 777 $INSTALL_LINK/application/data/cache || die 1 "Unable to chmod cache directory."
+    chmod -R 777 $INSTALL_LINK/application/data/doctrine || die 1 "Unable to chmod doctrine directory."
+    chmod -R 777 $INSTALL_LINK/application/custom || die 1 "Unable to chmod custom directory."
+}
+
+[ `whoami` == "root" ] || die 1 "This script must be run as the root user."
+
+while getopts "htbcudsfi:l:" opt; do
+  case $opt in
+    h)
+      usage
+      exit
+      ;;
+    t)
+      testinstall
+      exit
+      ;;
+    b)
+      RECIPE_BAKE=1
+      ;;
+    c)
+      RECIPE_CLEAN=1
+      ;;
+    u)
+      RECIPE_UPDATE=1
+      ;;
+    d)
+      ENTITY_CLEAN=1
+      ;;
+    s)
+      INSTALL_SILENT=1
+      ;;
+    f)
+      INSTALL_FORCE=1
+      ;;
+    i)
+      INSTALL_PATH=$OPTARG
+      ;;
+    l)
+      INSTALL_LINK=$OPTARG
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+# Ensure an option was specified -- so we don't blindly do an apache restart
+if [[ ! $RECIPE_BAKE && ! $RECIPE_CLEAN && ! $RECIPE_UPDATE && ! $ENTITY_CLEAN && ! $INSTALL_SILENT && ! $INSTALL_FORCE ]]
+  then
+    echo "No options specified."
+    usage
+    exit 1
+fi
+
+# Ensure that both -s and -f haven't been specified, it just doesn't make sense.
+[[ $INSTALL_SILENT && $INSTALL_FORCE ]] && die 1 "The -s and -f options are mutually exclusive."
+
+# Install MediaManager
+if [[ $INSTALL_SILENT || $INSTALL_FORCE ]]
+  then
+    # Set the BUILD_PATH to the last parameter on the command line.
+    BUILD_PATH=${!#}
+
+    installMediaManager
+fi
+
+# Clean all entity data.
+if [[ $ENTITY_CLEAN ]]
+  then
+    entityClean
+fi
+
+# Clean the recipe if set.
+if [[ $RECIPE_CLEAN ]]
+  then
+    recipeClean
+fi
+
+# Bake the recipe if set.
+if [[ $RECIPE_BAKE ]]
+  then
+    recipeBake
+fi
+
+# Update the recipe if set.
+if [[ $RECIPE_UPDATE ]]
+  then
+    recipeUpdate
+fi
+
+# Restart the apache server in order to clear the opcode cache.  If this isn't done, this error is seen:
+# [error] [client 10.1.82.10] PHP Fatal error:  include() [<a href='function.include'>function.include</a>]: Cannot redeclare class zend_cache_manager in
+if [ -f /etc/lsb-release ];
+    then
+        #Ubuntu
+        service apache2 restart
+    fi
+
+if [ -f /etc/centos-release ];
+    then
+        #CentOS
+        /etc/init.d/httpd restart
+    fi
