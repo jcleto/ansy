@@ -4,5 +4,6 @@ php_pear_channels:
   - pear.symfony.com
   - pear.phing.info
 php_pear_libraries:
-  - phpunit/PHPUnit
+    #  - phpunit/PHPUnit
   - phing/phing
+    #  - Yaml

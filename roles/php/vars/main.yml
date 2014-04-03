@@ -20,3 +20,5 @@ php_packages:
   - php-xml
   - php-mysql
   - php-tidy
+  - php-phpunit-PHPUnit
+    #  - php-pear-phing

@@ -1,9 +1,11 @@
 [mmservers]
 
 [jbpmservers]
+172.16.114.107
 
 [activemqservers]
 172.16.114.106
+172.16.114.107
 
 [dbservers]
 

@@ -31,7 +31,7 @@
   service: name=iptables state=stopped
 
 - name: set selinux boolean
-  command: /usr/sbin/setsebool -P httpd_can_network_connect=1
+  command: /usr/sbin/setsebool httpd_can_network_connect=1
 
 - name: install tools
   yum: name={{ item }} state=installed
@@ -41,7 +41,10 @@
       - autoconf
       - automake
       - openssl-devel
+      - mlocate
+      - zip
       - unzip
+      - gettext
 
 - name: Install Git
   yum: name=git state=installed

@@ -12,6 +12,7 @@
     user: root
 
     roles:
+       - db
        - java
        #        - jbpm
 
@@ -28,7 +29,7 @@
 
     roles:
         - java
-#        - activemq
+        - activemq
 
 -   name: Configure Database servers
     hosts: dbservers
@@ -45,7 +46,7 @@
         - db
         - apache
         - php
-        - php-pecl
+          #        - php-pecl
         - php-pear
         - composer
         - mediamanager

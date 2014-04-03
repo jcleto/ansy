@@ -1,0 +1,48 @@
+---
+### main.yml - ActiveMQ role for an OpenShift Origin deployment 
+#
+# Ansible playbook to deploy OpenShift Origin using nightly builds
+#
+- name: Download ActiveMQ
+  get_url: url=http://ftp.nluug.nl/internet/apache/activemq/apache-activemq/5.8.0/apache-activemq-5.8.0-bin.tar.gz
+      dest=/tmp/apache-activemq-5.8.0-bin.tar.gz mode=0440
+
+- name: Unzip ActiveMQ
+  command: tar -C /opt -xf /tmp/apache-activemq-5.8.0-bin.tar.gz
+
+- name: Copy activemq.xml configuration file
+  copy: src=activemq.xml dest=/opt/apache-activemq-5.8.0/conf/ owner=root group=root mode=0644
+
+- name: Copy jetty.xml configuration file
+  copy: src=jetty.xml dest=/opt/apache-activemq-5.8.0/conf/ owner=root group=root mode=0644
+
+- name: Copy configuration file to start and stop ActiveMQ
+  copy: src=activemq dest=/etc/default/activemq owner=root group=root mode=0755
+
+- name: restart ActiveMQ
+  command: /opt/apache-activemq-5.8.0/bin/activemq start
+
+# - name: Install ActiveMQ
+#   yum: pkg=activemq state=latest
+# - name: Configure ActiveMQ jetty.xml
+#   template: src=jetty.xml.j2
+#             dest=/etc/activemq/jetty.xml
+#   notify:
+#     - restart activemq
+# - name: Configure ActiveMQ activemq.xml
+#   template: src=activemq.xml.j2
+#             dest=/etc/activemq/activemq.xml
+#   notify:
+#     - restart activemq
+# - name: Configure ActiveMQ jetty-realm.properties
+#   template: src=jetty-realm.properties.j2
+#             dest=/etc/activemq/jetty-realm.properties.xml
+#   notify:
+#     - restart activemq
+# - name: Configure ActiveMQ tmp-activemq.conf
+#   template: src=tmp-activemq.conf.j2
+#             dest=/etc/tmpfiles.d/activemq.conf
+#notify:
+# - restart activemq
+# - name: Start and Enable ActiveMQ
+#   service: name=activemq state=started enabled=yes
