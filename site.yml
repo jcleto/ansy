@@ -14,7 +14,8 @@
     roles:
        - db
        - java
-       #        - jbpm
+       - jetty
+       - jbpm
 
 #-   name: Configure MediaManager servers
 #    hosts: mmservers

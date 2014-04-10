@@ -1,0 +1,8 @@
+JAVA_HOME=/usr/lib/jvm/jre-1.7.0/
+JAVA=$JAVA_HOME/bin/java
+JAVA_OPTIONS=" -server -Xms128m -Xmx2048m -XX:MaxPermSize=512m -XX:+DisableExplicitGC "
+JETTY_HOME=/opt/jetty
+JETTY_USER=jetty
+JETTY_PORT=8080
+JETTY_HOST=0.0.0.0
+JETTY_LOGS=logs/

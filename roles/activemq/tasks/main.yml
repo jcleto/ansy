@@ -10,17 +10,20 @@
 - name: Unzip ActiveMQ
   command: tar -C /opt -xf /tmp/apache-activemq-5.8.0-bin.tar.gz
 
+- name: Create simlink to ActiveMQ
+  file: src=/opt/apache-activemq-5.8.0 dest=/opt/activemq owner=root group=root state=link
+
 - name: Copy activemq.xml configuration file
-  copy: src=activemq.xml dest=/opt/apache-activemq-5.8.0/conf/ owner=root group=root mode=0644
+  copy: src=activemq.xml dest=/opt/activemq/conf/ owner=root group=root mode=0644
 
 - name: Copy jetty.xml configuration file
-  copy: src=jetty.xml dest=/opt/apache-activemq-5.8.0/conf/ owner=root group=root mode=0644
+  copy: src=jetty.xml dest=/opt/activemq/conf/ owner=root group=root mode=0644
 
 - name: Copy configuration file to start and stop ActiveMQ
   copy: src=activemq dest=/etc/default/activemq owner=root group=root mode=0755
 
 - name: restart ActiveMQ
-  command: /opt/apache-activemq-5.8.0/bin/activemq start
+  command: /opt/activemq/bin/activemq start
 
 # - name: Install ActiveMQ
 #   yum: pkg=activemq state=latest

@@ -1,0 +1,8 @@
+- name: create jbpm folder
+  file: path=/opt/jbpm owner=root group=root state=directory
+
+- name: Copy jetty default configuration file
+  copy: src=jbpm.xml dest=/opt/jetty/webapps/ owner=jetty group=jetty mode=0755
+
+- name: copy jbpm config properties file
+  copy: src=jbpm.config.properties dest=/opt/jbpm owner=jetty group=jetty mode=0755

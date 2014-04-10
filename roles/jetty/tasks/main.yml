@@ -1,0 +1,35 @@
+---
+- name: Download Jetty
+  get_url: url=http://eclipse.org/downloads/download.php?file=/jetty/stable-9/dist/jetty-distribution-9.1.4.v20140401.tar.gz&r=1
+      dest=/tmp/jetty9.tar.gz mode=0440
+
+- name: Unzip Jetty
+  command: tar -C /opt -xf /tmp/jetty9.tar.gz
+
+# Create jetty user
+- user: name=jetty  createhome=no system=yes
+
+  # Only for ansible 1.5
+  ##- acl: name=/opt/jetty-distribution-9.1.4.v20140401 default=yes entity=jetty etype=group permissions=rwx
+- name: setting permissions for jetty directory
+  command: chown -R jetty /opt/jetty-distribution-9.1.4.v20140401
+
+- name: setting group permissions for jetty directory
+  command: chgrp -R jetty /opt/jetty-distribution-9.1.4.v20140401
+#- acl: name=/opt/jetty-distribution-9.1.4.v20140401 default=yes entry="user:jetty:rwx" state=present
+
+- name: Create simlink to Jetty
+  file: src=/opt/jetty-distribution-9.1.4.v20140401 dest=/opt/jetty owner=jetty group=jetty state=link
+
+#- name: Copy activemq.xml configuration file
+#  copy: src=activemq.xml dest=/opt/activemq/conf/ owner=root group=root mode=0644
+
+#- name: Copy jetty.xml configuration file
+#  copy: src=jetty.xml dest=/opt/activemq/conf/ owner=root group=root mode=0644
+
+- name: Copy jetty default configuration file
+  copy: src=jetty dest=/etc/default/jetty owner=jetty group=jetty mode=0755
+
+#- name: restart ActiveMQ
+#  command: /opt/activemq/activemq start
+
