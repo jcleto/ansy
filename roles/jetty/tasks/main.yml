@@ -21,6 +21,8 @@
 - name: Create simlink to Jetty
   file: src=/opt/jetty-distribution-9.1.4.v20140401 dest=/opt/jetty owner=jetty group=jetty state=link
 
+- name: Create simlink to Jetty statup script
+  file: src=/opt/jetty/bin/jetty.sh dest=/etc/rc.d/init.d/jetty owner=jetty group=jetty state=link
 #- name: Copy activemq.xml configuration file
 #  copy: src=activemq.xml dest=/opt/activemq/conf/ owner=root group=root mode=0644
 
@@ -30,6 +32,5 @@
 - name: Copy jetty default configuration file
   copy: src=jetty dest=/etc/default/jetty owner=jetty group=jetty mode=0755
 
-#- name: restart ActiveMQ
-#  command: /opt/activemq/activemq start
-
+- name: Start and Enable Jetty
+  service: name=jetty state=started enabled=yes
