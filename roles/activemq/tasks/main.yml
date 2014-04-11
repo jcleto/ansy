@@ -22,30 +22,8 @@
 - name: Copy configuration file to start and stop ActiveMQ
   copy: src=activemq dest=/etc/default/activemq owner=root group=root mode=0755
 
-- name: restart ActiveMQ
-  command: /opt/activemq/bin/activemq start
+- name: Copy init.d file to start and stop ActiveMQ
+  copy: src=activemq.init.d dest=/etc/rc.d/init.d/activemq owner=root group=root mode=0755
 
-# - name: Install ActiveMQ
-#   yum: pkg=activemq state=latest
-# - name: Configure ActiveMQ jetty.xml
-#   template: src=jetty.xml.j2
-#             dest=/etc/activemq/jetty.xml
-#   notify:
-#     - restart activemq
-# - name: Configure ActiveMQ activemq.xml
-#   template: src=activemq.xml.j2
-#             dest=/etc/activemq/activemq.xml
-#   notify:
-#     - restart activemq
-# - name: Configure ActiveMQ jetty-realm.properties
-#   template: src=jetty-realm.properties.j2
-#             dest=/etc/activemq/jetty-realm.properties.xml
-#   notify:
-#     - restart activemq
-# - name: Configure ActiveMQ tmp-activemq.conf
-#   template: src=tmp-activemq.conf.j2
-#             dest=/etc/tmpfiles.d/activemq.conf
-#notify:
-# - restart activemq
-# - name: Start and Enable ActiveMQ
-#   service: name=activemq state=started enabled=yes
+- name: Start and Enable ActiveMQ
+  service: name=activemq state=started enabled=yes
